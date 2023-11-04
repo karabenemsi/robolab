@@ -60,12 +60,27 @@ class TestHammingCode(unittest.TestCase):
             self.assertEqual(self.instance.decode(code), expected)
 
     def test_decode_corrected(self):
-        """ Essential: Test method decode() with CORRECTED input """
-        self.fail('implement me!')
+        """Essential: Test method decode() with CORRECTED input"""
+        codes_to_decode = [
+            (0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0),  # From task 4
+            (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),  # From task 4
+            (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0),
+            (1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1),  # From task 4
+        ]
+        expected_results = [
+            ((0, 1, 1, 0, 1, 1), HCResult.CORRECTED),
+            ((0, 0, 0, 0, 0, 0), HCResult.CORRECTED),
+            ((1, 0, 1, 1, 0, 1), HCResult.CORRECTED),
+            ((1, 1, 1, 1, 1, 0), HCResult.CORRECTED),
+        ]
+        for code, expected in zip(codes_to_decode, expected_results):
+            self.assertEqual(self.instance.decode(code), expected)
 
     def test_decode_uncorrectable(self):
-        """ Essential: Test method decode() with UNCORRECTABLE input """
-        self.fail('implement me!')
+        """Essential: Test method decode() with UNCORRECTABLE input"""
+        self.fail("implement me!")
+
+    pass
 
     def test_encode(self):
         """Essential: Test method encode()"""
