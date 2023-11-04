@@ -46,8 +46,7 @@ Adding the additional parity bit $p_4$ for the extended Hamming Code for the gen
 And the corresponding parity-check matrix $H_{4,8}$ looks like this:
 
 \begin{equation*}
-  \Rightarrow H'_{4,8} := \begin{pNiceMatrix}
-    [first-row]
+  \Rightarrow H'_{4,8} := \begin{pNiceMatrix}[first-row]
     p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 & p_4 \\
     1   & 0   & 1   & 0   & 1   & 0   & 1   & 0   \\
     0   & 1   & 1   & 0   & 0   & 1   & 1   & 0   \\
@@ -118,10 +117,82 @@ As G is defined as $G:=(I_k|-A^T)$, we can read the parity-check matrix $H$ dire
 
 \section*{Task 3}
 \begin{align*}
-  \vec{x_1} & = (\vec{a_1} \cdot G') \mod 2 = (0100) \cdot G' \mod 2 = (1 0 0 1 1 0 0 1) \mod 2 = (1 0 0 1 1 0 0 1) \\
-  \vec{x_2} & = (\vec{a_2} \cdot G') \mod 2 = (22110011) \mod 2 = (00110011)                                        \\
-  \vec{x_3} & = (\vec{a_3} \cdot G') \mod 2 = (10000111)                                                            \\
-  \vec{x_4} & = (\vec{a_4} \cdot G') \mod 2 = (10101010)                                                            \\
+  \vec{x_1} & = (\vec{a_1} \cdot G') \mod 2 = (0100) \cdot G' \mod 2 = (1 0 0 1 1 0 0 1) \mod 2 = (1 0 0 1 1 0 0 1) \,  p_4 = 1\\
+  \vec{x_2} & = (\vec{a_2} \cdot G') \mod 2= (1001) \cdot G' \mod 2 = = (22110011) \mod 2 = (00110011) \, p_4 = 01                \\
+  \vec{x_3} & = (\vec{a_3} \cdot G') \mod 2 = (0011) \cdot G' \mod 2 = = (10000111) \, p_4 = 1                                                            \\
+  \vec{x_4} & = (\vec{a_4} \cdot G') \mod 2 = (1101) \cdot G' \mod 2 = = (10101010)  \, p_4 = 0                                                            \\
 \end{align*}
 
 \section*{Task 4}
+\begin{align*}
+  \vec{x_1} & = (1 1 0 0 1 1 0 1)\\
+  \vec{x_2} & = (1 0 0 1 1 0 0 1)           \\
+  \vec{x_3} & = (1 1 0 1 1 0 1 1)                                                          \\
+  \vec{x_4} & = (1 1 0 1 0 1 0 1)                                                         \\
+\end{align*}
+
+\subsection*{Parity bit $p_4$}
+\begin{align*}
+  \vec{x_1} & = (1 1 0 0 1 1 0 1) \rightarrow p_4 = 1 \rightarrow \text{error}\\
+  \vec{x_2} & = (1 0 0 1 1 0 0 1)  \rightarrow p_4 = 1 \rightarrow \text{correct}         \\
+  \vec{x_3} & = (1 1 0 1 1 0 1 1)  \rightarrow p_4 = 1 \rightarrow \text{correct}                                                        \\
+  \vec{x_4} & = (1 1 0 1 0 1 0 1)   \rightarrow p_4 = 1 \rightarrow \text{error}                                                      \\
+\end{align*}
+
+\subsection*{Syndrome vector}
+The syndrome vector $\vec{z}$ is calculated by multiplying the received vector $\vec{x}$ with the parity-check matrix $H$, where the last bit is the parity bit $p_4$ and the first three bits are the syndrome vector $\vec{z}$:
+\begin{equation*}
+  \vec{z} = (\vec{x} \cdot H) \mod 2
+\end{equation*}
+This results in the following syndrome vectors:
+\begin{align*}
+  \vec{z_1} & = (\vec{x_1} \cdot H) \mod 2 = ((11001101) \cdot H) \mod 2\\
+   &= \begin{pmatrix}2 &2 &2 &5\end{pmatrix} \mod 2 = \begin{pmatrix}0 &0 &0 &1\end{pmatrix}\\
+   & \Rightarrow \text{error in parity bit}\\
+  \vec{z_2} & = (\vec{x_2} \cdot H) \mod 2 = ((10011001) \cdot H) \mod 2\\
+   &= \begin{pmatrix}2 &2 &2 &4\end{pmatrix} \mod 2 = \begin{pmatrix}0 &0 &0 &0\end{pmatrix}\\
+   & \Rightarrow \text{no error}\\
+  \vec{z_3} & = (\vec{x_3} \cdot H) \mod 2 = ((11011011) \cdot H) \mod 2\\
+   &= \begin{pmatrix}3 &2 &4 &6\end{pmatrix} \mod 2 = \begin{pmatrix}1 &0 &0 &1\end{pmatrix}\\
+   & \Rightarrow \text{error on position 1, try correction}\\
+  \vec{z_4} & = (\vec{x_4} \cdot H) \mod 2 = ((11010101) \cdot H) \mod 2\\
+   &= \begin{pmatrix}2 &3 &3 &5\end{pmatrix} \mod 2 = \begin{pmatrix}0 &1 &1 &1\end{pmatrix}\\
+   & \Rightarrow \text{error on position 6, try correction}\\
+\end{align*}
+
+\subsection*{Error correction}
+\subsubsection*{Correct $\vec{x_3}$}
+For error correction, we have to flip the bit in the received vector $\vec{x_3}$ at the position given by the syndrome vector $\vec{z_3}$:
+\begin{align*}
+  \vec{z_3} = (1001) \rightarrow \text{remove parity bit} \rightarrow \vec{z_3} = (100) \rightarrow \text{convert to decimal (LSB)} \rightarrow 1\\
+  \vec{x_3'} = (11011011) \rightarrow \text{flip bit at position 1} \rightarrow \vec{x_4} = (0 1 0 1 1011)\\
+\end{align*}
+To validate the correction, we calculate the syndrome vector again:
+\begin{align*}
+  \vec{z_3'} & = (\vec{x_3'} \cdot H) \mod 2 = ((01011011) \cdot H) \mod 2\\
+   &= \begin{pmatrix}1 &1 &1 &0\end{pmatrix} \Rightarrow \text{multiple errors}\\
+\end{align*}
+
+\subsubsection*{Correct $\vec{x_4}$}
+For error correction, we have to flip the bit in the received vector $\vec{x_4}$ at the position given by the syndrome vector $\vec{z_4}$:
+\begin{align*}
+  \vec{z_4} = (0111) \rightarrow \text{remove parity bit} \rightarrow \vec{z_4} = (011) \rightarrow \text{convert to decimal (LSB)} \rightarrow 6\\
+  \vec{x_4} = (1 1 0 1 0 1 0 1) \rightarrow \text{flip bit at position 6} \rightarrow \vec{x_4'} = (1 1 0 1 0 0 0 1)\\
+\end{align*}
+To validate the correction, we calculate the syndrome vector again:
+\begin{align*}
+  \vec{z_4'} & = (\vec{x_4'} \cdot H) \mod 2 = ((11010001) \cdot H) \mod 2\\
+   &= \begin{pmatrix}0 &0 &1 &1\end{pmatrix}
+    \Rightarrow \text{error on position 4, repeat}\\
+   \vec{x_4'} &= (11010001) \rightarrow \text{flip bit at position 4} \rightarrow \vec{x_4''} = (11000001)\\
+   \vec{z_4''} & = (\vec{x_4''} \cdot H) \mod 2 = \begin{pmatrix}1 &1 &0 &1\end{pmatrix}
+    \Rightarrow \text{error on position 3, repeat}\\
+   \vec{x_4''} &= (11000001) \rightarrow \text{flip bit at position 3} \rightarrow \vec{x_4'''} = (11100001)\\
+   \vec{z_4''} & = (\vec{x_4'''} \cdot H) \mod 2 = \begin{pmatrix}0 &0 &0 &0\end{pmatrix} \Rightarrow \text{no error}
+\end{align*}
+
+
+\section*{Appendix}
+\subsection*{Python code for encoding and decoding}
+\lstinputlisting[language=Python]{./code/hc.py}
+
