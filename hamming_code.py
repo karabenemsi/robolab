@@ -114,6 +114,26 @@ class HammingCode:
         )
 
         return encoded_word + (sum(encoded_word) % 2,)
+
+    def __get_syndrome(self, x: Tuple[int, ...]) -> int:
+        """
+        Returns the syndrome of the given word.
+
+        Args:
+            x (tuple): n-tuple (length depends on number of total bits)
+        Returns:
+            tuple: r-tuple (length depends on number of parity bits)
+        """
+        return sum(
+            2**i * bit
+            for i, bit in enumerate(
+                sum(a * b for a, b in zip(x, col)) % 2 for col in self.h
+            )
+        )
+
+    def decode(
+        self, encoded_word: Tuple[int, ...]
+    ) -> Tuple[Union[None, Tuple[int, ...]], HCResult]:
         """
         Checks the channel alphabet word for errors and attempts to decode it.
         Args:
@@ -121,6 +141,36 @@ class HammingCode:
         Returns:
             Union: (m-tuple, HCResult) or (None, HCResult)(length depends on number of data bits)
         """
+        overall_parity_bit = encoded_word[-1]
+        overall_parity_ok = sum(encoded_word) % 2 == overall_parity_bit
+        syndrome = self.__get_syndrome(encoded_word[:-1])
 
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        pass
+        if overall_parity_ok and syndrome == 0:
+            # No error
+            return tuple(encoded_word[: self.data_bits]), HCResult.VALID
+        elif not overall_parity_ok and syndrome == 0:
+            # Error in overall parity bit, data is valid
+            return tuple(encoded_word[: self.data_bits]), HCResult.VALID
+        elif overall_parity_ok and syndrome >= 1:
+            # Multiple errors, uncorrectable
+            return None, HCResult.UNCORRECTABLE
+        elif not overall_parity_ok and syndrome >= 1:
+            # while sum(syndrome) >= 1:
+            # TODO: Implement error correction
+            return tuple(encoded_word[: self.data_bits]), HCResult.CORRECTED
+            # while syndrome_number >= 1 and overall_parity == 1:
+            #     print("Error on position " + str(syndrome_number) + ". Try to correct it")
+            #     corrected_vector = tuple(
+            #         bit ^ (1 if i == syndrome_number - 1 else 0)
+            #         for i, bit in enumerate(vector)
+            #     )
+            #     print(f"Corrected vector: {corrected_vector}")
+            #     print(f"Corrected check: {get_syndrome(corrected_vector, H_sys)}")
+            #     *syndrome, overall_parity = get_syndrome(corrected_vector, H_sys)
+            #     syndrome_number = sum(2**i * bit for i, bit in enumerate(syndrome))
+            #     if syndrome_number == 0 and overall_parity == 0:
+            #         print("Corrected!")
+            #         break
+            #     elif syndrome_number >= 1 and overall_parity == 0:
+            #         print("Multiple errors")
+            #         break
