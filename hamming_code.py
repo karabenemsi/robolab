@@ -27,12 +27,19 @@ class HammingCode:
         """
         Initializes the class HammingCode with all values necessary.
         """
-        self.total_bits = 0  # n
-        self.data_bits = 0  # k
-        self.parity_bits = 0  # r
+        self.total_bits = 10  # n
+        self.data_bits = 6  # k
+        self.parity_bits = 4  # r
 
         # Predefined non-systematic generator matrix G'
-        gns = []
+        gns: Matrix = [
+            [1, 1, 1, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 1, 0, 0, 1, 0, 0],
+            [1, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+            [1, 1, 0, 1, 0, 0, 0, 1, 1, 0],
+            [1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+        ]
 
         # Convert non-systematic G' into systematic matrices G, H
         self.g = self.__convert_to_g(gns)
@@ -50,6 +57,7 @@ class HammingCode:
 
         return list(map(list, zip(*matrix)))
 
+    def __convert_to_g(self, gns: Matrix) -> Matrix:
         """
         Converts a non-systematic generator matrix into a systematic
 
@@ -58,11 +66,24 @@ class HammingCode:
         Returns:
             list: Converted systematic generator matrix
         """
+        g = gns.copy()
+        steps = [
+            (1, (3, 5, 6)),
+            (2, (1, 3, 6)),
+            (3, (1, 5, 6)),
+            (4, (1, 3)),
+            (5, (2, 3)),
+            (6, (1, 2, 5)),
+        ]
+        for step in steps:
+            working_row = g[step[0] - 1]
+            for target_row in step[1]:
+                g[target_row - 1] = [
+                    (a - b) % 2 for a, b in zip(working_row, g[target_row - 1])
+                ]
+        return g
 
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        pass
-
-    def __derive_h(self, g: List):
+    def __derive_h(self, g: Matrix) -> Matrix:
         """
         This method executes all steps necessary to derive H from G.
 
@@ -71,9 +92,12 @@ class HammingCode:
         Returns:
             list:
         """
-
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        pass
+        identity_matrix = [
+            [1 if i == j else 0 for i in range(self.parity_bits)]
+            for j in range(self.parity_bits)
+        ]
+        parity_matrix = self.__transpose(g)[self.data_bits :]
+        return [a + b for a, b in zip(parity_matrix, identity_matrix)]
 
     def encode(self, source_word: Tuple[int, ...]) -> Tuple[int, ...]:
         """
