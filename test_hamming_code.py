@@ -43,8 +43,21 @@ class TestHammingCode(unittest.TestCase):
         self.assertEqual(self.instance._HammingCode__transpose(matrix), expected)
 
     def test_decode_valid(self):
-        """ Essential: Test method decode() with VALID input """
-        self.fail('implement me!')
+        """Essential: Test method decode() with VALID input"""
+        codes_to_decode = [
+            (0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1),  # From task 4
+            (1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1),
+        ]
+        expected_results = [
+            ((0, 1, 1, 0, 1, 1), HCResult.VALID),
+            ((0, 0, 0, 0, 0, 0), HCResult.VALID),
+            ((1, 0, 1, 1, 0, 1), HCResult.VALID),
+            ((1, 1, 1, 1, 1, 0), HCResult.VALID),
+        ]
+        for code, expected in zip(codes_to_decode, expected_results):
+            self.assertEqual(self.instance.decode(code), expected)
 
     def test_decode_corrected(self):
         """ Essential: Test method decode() with CORRECTED input """
