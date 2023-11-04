@@ -108,11 +108,12 @@ class HammingCode:
         Returns:
             tuple: n-tuple (length depends on number of total bits)
         """
+        encoded_word = tuple(
+            sum(a * b for a, b in zip(source_word, col)) % 2
+            for col in self.__transpose(self.g)
+        )
 
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        pass
-
-    def decode(self, encoded_word: Tuple[int, ...]) -> Tuple[Union[None, Tuple[int, ...]], HCResult]:
+        return encoded_word + (sum(encoded_word) % 2,)
         """
         Checks the channel alphabet word for errors and attempts to decode it.
         Args:
