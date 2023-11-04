@@ -5,14 +5,17 @@ from typing import List, Tuple, Union
 
 
 # IMPORTANT NOTE: DO NOT IMPORT THE ev3dev.ev3 MODULE IN THIS FILE
+Matrix = List[List[int]]
+
 
 class HCResult(Enum):
     """
     Return codes for the Hamming Code interface
     """
-    VALID = 'OK'
-    CORRECTED = 'FIXED'
-    UNCORRECTABLE = 'ERROR'
+
+    VALID = "OK"
+    CORRECTED = "FIXED"
+    UNCORRECTABLE = "ERROR"
 
 
 class HammingCode:
@@ -35,7 +38,18 @@ class HammingCode:
         self.g = self.__convert_to_g(gns)
         self.h = self.__derive_h(self.g)
 
-    def __convert_to_g(self, gns: List):
+    def __transpose(self, matrix: Matrix) -> Matrix:
+        """
+        Transposes the given matrix.
+
+        Args:
+            matrix (list): Matrix to transpose
+        Returns:
+            list: Transposed matrix
+        """
+
+        return list(map(list, zip(*matrix)))
+
         """
         Converts a non-systematic generator matrix into a systematic
 
