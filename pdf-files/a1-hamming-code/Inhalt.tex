@@ -1,2 +1,57 @@
 % !TEX root = Document.tex
 \section*{Task 1}
+
+The constructed generator matrix $G'_{4,7}$ and the corresponding parity-check matrix $H'_{3,7}$ without extension look like this:
+
+\begin{align*}
+  G'_{4,7}             & := \begin{pNiceMatrix}[first-row]
+                              p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 \\
+                              1   & 1   & 1   & 0   & 0   & 0   & 0   \\
+                              1   & 0   & 0   & 1   & 1   & 0   & 0   \\
+                              0   & 1   & 0   & 1   & 0   & 1   & 0   \\
+                              1   & 1   & 0   & 1   & 0   & 0   & 1   \\
+                            \end{pNiceMatrix} \\
+  \Rightarrow A^T      & = \begin{pNiceMatrix}[]
+                             1 & 1 & 0 \\
+                             1 & 0 & 1 \\
+                             0 & 1 & 1 \\
+                             1 & 1 & 1 \\
+                           \end{pNiceMatrix}
+  \rightarrow A    = \begin{pNiceMatrix}[]
+                       1 & 1 & 0 & 1 \\
+                       1 & 0 & 1 & 1 \\
+                       0 & 1 & 1 & 1 \\
+                     \end{pNiceMatrix}                           \\
+  \Rightarrow H'_{3,7} & := \begin{pNiceMatrix}[first-row]
+                              p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 \\
+                              1   & 0   & 1   & 0   & 1   & 0   & 1   \\
+                              0   & 1   & 1   & 0   & 0   & 1   & 1   \\
+                              0   & 0   & 0   & 1   & 1   & 1   & 1   \\
+                            \end{pNiceMatrix}
+\end{align*}
+
+
+Adding the additional parity bit $p_4$ for the extended Hamming Code for the generator matrix $G_{4,8}$ looks like this:
+
+\begin{equation*}
+  G'_{4,8} := \begin{pNiceMatrix}[first-row]
+    p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 & p_4 \\
+    1   & 1   & 1   & 0   & 0   & 0   & 0   & 1   \\
+    1   & 0   & 0   & 1   & 1   & 0   & 0   & 1   \\
+    0   & 1   & 0   & 1   & 0   & 1   & 0   & 1   \\
+    1   & 1   & 0   & 1   & 0   & 0   & 1   & 0   \\
+  \end{pNiceMatrix} \\
+\end{equation*}
+
+And the corresponding parity-check matrix $H_{4,8}$ looks like this:
+
+\begin{equation*}
+  \Rightarrow H'_{4,8} := \begin{pNiceMatrix}
+    [first-row]
+    p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 & p_4 \\
+    1   & 0   & 1   & 0   & 1   & 0   & 1   & 0   \\
+    0   & 1   & 1   & 0   & 0   & 1   & 1   & 0   \\
+    0   & 0   & 0   & 1   & 1   & 1   & 1   & 0   \\
+    1   & 1   & 1   & 1   & 1   & 1   & 1   & 1   \\
+  \end{pNiceMatrix}
+\end{equation*}
