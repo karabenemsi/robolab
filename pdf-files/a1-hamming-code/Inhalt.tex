@@ -55,3 +55,63 @@ And the corresponding parity-check matrix $H_{4,8}$ looks like this:
     1   & 1   & 1   & 1   & 1   & 1   & 1   & 1   \\
   \end{pNiceMatrix}
 \end{equation*}
+
+\section*{Task 2}
+\begin{align*}
+  G'_{4,8} := \begin{pNiceMatrix}[first-row]
+                p_1 & p_2 & d_1 & p_3 & d_2 & d_3 & d_4 & p_4 \\
+                1   & 1   & 1   & 0   & 0   & 0   & 0   & 1   \\
+                1   & 0   & 0   & 1   & 1   & 0   & 0   & 1   \\
+                0   & 1   & 0   & 1   & 0   & 1   & 0   & 1   \\
+                1   & 1   & 0   & 1   & 0   & 0   & 1   & 0   \\
+              \end{pNiceMatrix} \\
+\end{align*}
+To convert this non-systematic generator matrix into a systematic one, we have to apply the following steps:
+\begin{align*}
+  \text{Step 1:}      &                                                  & \\
+                      & \begin{pNiceMatrix}[first-col]
+                                    & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 1 \\
+                          r_2 + r_1 & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+                                    & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                          r_4 + r_1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 \\
+                        \end{pNiceMatrix}     &          \\
+  \text{Step 2:}      &                                                  & \\
+                      & \begin{pNiceMatrix}[first-col]
+                          r_1 +r_2  & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 \\
+                                    & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 0 \\
+                          r_3 + r_2 & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 1 \\
+                                    & 0 & 0 & 1 & 1 & 0 & 0 & 1 & 1 \\
+                        \end{pNiceMatrix}     &          \\
+  \text{Step 3:}      &                                                  & \\
+                      & \begin{pNiceMatrix}[first-col]
+                                    & 1 & 0 & 0 & 1 & 1 & 0 & 0 & 1 \\
+                          r_2 + r_3 & 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 \\
+                                    & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 1 \\
+                          r_4 + r_3 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 \\
+                        \end{pNiceMatrix}     &          \\
+  \text{Step 4:}      &                                                  & \\
+                      & \begin{pNiceMatrix}[first-col]
+                          r_1 + r_4 & 1 & 0 & 0 & 0 & 0 & 1 & 1 & 1 \\
+                          r_2 + r_4 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 1 \\
+                                    & 0 & 0 & 1 & 0 & 1 & 1 & 0 & 1 \\
+                                    & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 \\
+                        \end{pNiceMatrix}          \\
+  \Rightarrow G_{4,8} & \begin{pNiceMatrix}[first-row]
+                          d_1 & d_2 & d_3 & d_4 & p_1 & p_2 & p_3 & p_4 \\
+                          1   & 0   & 0   & 0   & 0   & 1   & 1   & 1   \\
+                          0   & 1   & 0   & 0   & 1   & 0   & 1   & 1   \\
+                          0   & 0   & 1   & 0   & 1   & 1   & 0   & 1   \\
+                          0   & 0   & 0   & 1   & 1   & 1   & 1   & 0   \\
+                        \end{pNiceMatrix}      \\
+\end{align*}
+
+As G is defined as $G:=(I_k|-A^T)$, we can read the parity-check matrix $H$ directly from the matrix $A$: $H:=(-A|I_{n-k})$:
+\begin{equation*}
+  H_{4,8} := \begin{pNiceMatrix}[first-row]
+    d_1 & d_2 & d_3 & d_4 & p_1 & p_2 & p_3 & p_4 \\
+    0   & 1   & 1   & 1   & 1   & 0   & 0   & 0   \\
+    1   & 0   & 1   & 1   & 0   & 1   & 0   & 0   \\
+    1   & 1   & 0   & 1   & 0   & 0   & 1   & 0   \\
+    1   & 1   & 1   & 0   & 0   & 0   & 0   & 1   \\
+  \end{pNiceMatrix}
+\end{equation*}
