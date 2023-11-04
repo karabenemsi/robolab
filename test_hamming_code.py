@@ -68,9 +68,17 @@ class TestHammingCode(unittest.TestCase):
         self.fail('implement me!')
 
     def test_encode(self):
-        """ Essential: Test method encode() """
-        self.fail('implement me!')
+        """Essential: Test method encode()"""
+        test_cases = [
+            ((0, 1, 1, 0, 1, 1), (0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0)),
+            ((0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
+            ((1, 0, 1, 1, 0, 1), (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1)),
+            ((1, 1, 1, 1, 1, 0), (1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1)),
+        ]
+
+        for source_word, expected_encoded_word in test_cases:
+            self.assertEqual(self.instance.encode(source_word), expected_encoded_word)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
