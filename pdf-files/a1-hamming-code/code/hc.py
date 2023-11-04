@@ -105,11 +105,3 @@ for word, vector in words_2.items():
     else:
         print("\tMultiple errors")
     print()
-
-# %%
-
-
-# %%
-
-
-
