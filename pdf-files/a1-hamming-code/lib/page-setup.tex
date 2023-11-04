@@ -1,0 +1,76 @@
+% !TEX root = ../Document.tex
+
+
+\setlength{\topskip}{\ht\strutbox}
+\geometry{a4paper,left=25mm,right=25mm,top=30mm,bottom=30mm}
+
+\usepackage[
+	automark, % Kapitelangaben in Kopfzeile automatisch erstellen
+	headsepline, % Trennlinie unter Kopfzeile
+	ilines % Trennlinie linksbündig ausrichten
+]{scrlayer-scrpage}
+
+\pagestyle{scrheadings}
+% chapterpagestyle gibt es nicht in scrartcl
+%\renewcommand{\chapterpagestyle}{scrheadings}
+\clearpairofpagestyles
+
+
+% Kopfzeile
+\renewcommand{\headfont}{\normalfont} % Schriftform der Kopfzeile
+\ihead{\textsc{\docutitle}\\[0.5ex] \textit{\headmark}}
+\chead{}
+\ohead{\includegraphics[scale=0.5]{\logo}}
+\setlength{\headheight}{15mm} % Höhe der Kopfzeile
+%\setheadwidth[0pt]{textwithmarginpar} % Kopfzeile über den Text hinaus verbreitern (falls Logo den Text überdeckt)
+
+% Fußzeile
+\ifoot{\today}
+\cfoot{}
+\ofoot{\pagemark}
+\setlength{\footskip}{10mm}
+
+% Überschriften nach DIN 5008 in einer Fluchtlinie
+% ------------------------------------------------------------------------------
+
+% Abstand zwischen Nummerierung und Überschrift definieren
+% > Schön wäre hier die dynamische Berechnung des Abstandes in Abhängigkeit
+% > der Verschachtelungstiefe des Inhaltsverzeichnisses
+\newcommand{\headingSpace}{1.5cm}
+
+% Abschnittsüberschriften im selben Stil wie beim Inhaltsverzeichnis einrücken
+\renewcommand*{\othersectionlevelsformat}[3]{
+  \makebox[\headingSpace][l]{#3\autodot}
+}
+
+
+% Allgemeines
+% ------------------------------------------------------------------------------
+
+\onehalfspacing
+\frenchspacing
+
+% Schusterjungen und Hurenkinder vermeiden
+\clubpenalty = 10000
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+% Quellcode-Ausgabe formatieren
+%\lstset{numbers=left, numberstyle=\tiny, numbersep=5pt, breaklines=true}
+\lstset{emph={square}, emphstyle=\color{red}, emph={[2]root,base}, emphstyle={[2]\color{blue}}}
+
+\counterwithout{footnote}{section} % Fußnoten fortlaufend durchnummerieren
+
+% Aufzählungen anpassen
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}}
+
+% Tabellenfärbung:
+\definecolor{heading}{rgb}{0.64,0.78,0.86}
+\definecolor{odd}{rgb}{0.9,0.9,0.9}
+
+% Schriftart
+\usepackage[sfdefault, scale=1, light]{roboto}  % Roboto als Schrifart
+\usepackage[T1]{fontenc}
+%\usepackage{newtxsf}
