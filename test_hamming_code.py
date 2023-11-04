@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
 import unittest
+from hamming_code import HammingCode, HCResult
 
 
 class TestHammingCode(unittest.TestCase):
+    # Init test class with HammingCode instance for all test methods
+    def __init__(self, *args, **kwargs) -> None:
+        self.instance = HammingCode()
+        super().__init__(*args, **kwargs)
+
     def test_instance(self):
         """ Essential: Test class instantiation """
         self.fail('implement me!')
