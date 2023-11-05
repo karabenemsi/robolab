@@ -2,6 +2,7 @@
 
 from enum import Enum
 from typing import List, Tuple, Union
+from functools import reduce
 
 
 # IMPORTANT NOTE: DO NOT IMPORT THE ev3dev.ev3 MODULE IN THIS FILE
@@ -124,12 +125,7 @@ class HammingCode:
         Returns:
             tuple: r-tuple (length depends on number of parity bits)
         """
-        return sum(
-            2**i * bit
-            for i, bit in enumerate(
-                sum(a * b for a, b in zip(x, col)) % 2 for col in self.h
-            )
-        )
+        return tuple(sum(a * b for a, b in zip(x, col)) % 2 for col in self.h)
 
     def decode(
         self, encoded_word: Tuple[int, ...]
@@ -141,36 +137,42 @@ class HammingCode:
         Returns:
             Union: (m-tuple, HCResult) or (None, HCResult)(length depends on number of data bits)
         """
-        overall_parity_bit = encoded_word[-1]
-        overall_parity_ok = sum(encoded_word) % 2 == overall_parity_bit
+        overall_parity_ok = sum(encoded_word) % 2 == 0
         syndrome = self.__get_syndrome(encoded_word[:-1])
+        syndrome_bits = sum(syndrome)
 
-        if overall_parity_ok and syndrome == 0:
+
+
+        if overall_parity_ok and syndrome_bits == 0:
             # No error
             return tuple(encoded_word[: self.data_bits]), HCResult.VALID
-        elif not overall_parity_ok and syndrome == 0:
+        elif not overall_parity_ok and syndrome_bits == 0:
             # Error in overall parity bit, data is valid
-            return tuple(encoded_word[: self.data_bits]), HCResult.VALID
-        elif overall_parity_ok and syndrome >= 1:
+            return tuple(encoded_word[: self.data_bits]), HCResult.CORRECTED
+        
+        elif overall_parity_ok and syndrome_bits >= 1:
             # Multiple errors, uncorrectable
             return None, HCResult.UNCORRECTABLE
-        elif not overall_parity_ok and syndrome >= 1:
-            # while sum(syndrome) >= 1:
-            # TODO: Implement error correction
-            return tuple(encoded_word[: self.data_bits]), HCResult.CORRECTED
-            # while syndrome_number >= 1 and overall_parity == 1:
-            #     print("Error on position " + str(syndrome_number) + ". Try to correct it")
-            #     corrected_vector = tuple(
-            #         bit ^ (1 if i == syndrome_number - 1 else 0)
-            #         for i, bit in enumerate(vector)
-            #     )
-            #     print(f"Corrected vector: {corrected_vector}")
-            #     print(f"Corrected check: {get_syndrome(corrected_vector, H_sys)}")
-            #     *syndrome, overall_parity = get_syndrome(corrected_vector, H_sys)
-            #     syndrome_number = sum(2**i * bit for i, bit in enumerate(syndrome))
-            #     if syndrome_number == 0 and overall_parity == 0:
-            #         print("Corrected!")
-            #         break
-            #     elif syndrome_number >= 1 and overall_parity == 0:
-            #         print("Multiple errors")
-            #         break
+        elif not overall_parity_ok and syndrome_bits >= 1:
+            encoded_word = list(encoded_word)
+            # Search for the column in H that matches the syndrome
+            error_position_mask = reduce(
+                # and all the columns, resulting in a tuple of 1s and 0s where 1s indicate the error positions
+                lambda total, new: tuple(a & b  for a,b in zip(total , new)),
+                # for each row in H, return the row if the syndrome bit is 1, otherwise return the row with all bits flipped
+                # when anding the rows, the result will be a tuple of 1s and 0s where 1s indicate the positions the syndrome matches the column
+                (mask if s == 1 else tuple(val^1 for val in mask) for s, mask in zip(syndrome, self.h))
+            )
+            # get the positions of the 1s in the mask
+            error_positions = tuple(i for i, v in enumerate(error_position_mask) if v == 1)
+            # if there are no error positions or more than 1, the error is uncorrectable
+            if(len(error_positions) != 1):
+                return None, HCResult.UNCORRECTABLE
+            # if there is exactly one error position, flip the bit at that position
+            encoded_word = tuple(
+                bit ^ (1 if i == error_positions[0] else 0)
+                for i, bit in enumerate(encoded_word)
+            )
+            return encoded_word[:self.data_bits], HCResult.CORRECTED
+        else:
+            raise Exception("This should never happen")
