@@ -1,6 +1,17 @@
 % !TEX root = Document.tex
 \section*{Task 1}
 
+To create a generator matrix $G_{4,8}$ for the extended Hamming Code, we have to create a generator matrix $G'_{4,7}$ for the Hamming Code first. The generator matrix $G'_{4,7}$ for the Hamming Code can be constructed by following the following rules:
+\begin{itemize}
+  \item no two columns are equal, only distinct columns
+  \item no column may be all zeros
+  \item the number of ones in each column is odd
+  \item each column can be read as binary numbers where top is the most significant bit
+  \item the number represented by the columns should be as small as possible
+  \item the columns are ordered by their binary number descending from left to right (hint: start from the right and work your way to the left)
+\end{itemize}
+
+
 The constructed generator matrix $G'_{4,7}$ and the corresponding parity-check matrix $H'_{3,7}$ without extension look like this:
 
 \begin{align*}
