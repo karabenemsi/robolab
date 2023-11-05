@@ -3,6 +3,73 @@
 import unittest
 from hamming_code import HammingCode, HCResult
 
+valid_words = [
+    ((0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
+    ((0, 0, 0, 0, 0, 1), (0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1)),
+    ((0, 0, 0, 0, 1, 0), (0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0)),
+    ((0, 0, 0, 0, 1, 1), (0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1)),
+    ((0, 0, 0, 1, 0, 0), (0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1)),
+    ((0, 0, 0, 1, 0, 1), (0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0)),
+    ((0, 0, 0, 1, 1, 0), (0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1)),
+    ((0, 0, 0, 1, 1, 1), (0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0)),
+    ((0, 0, 1, 0, 0, 0), (0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0)),
+    ((0, 0, 1, 0, 0, 1), (0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1)),
+    ((0, 0, 1, 0, 1, 0), (0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0)),
+    ((0, 0, 1, 0, 1, 1), (0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1)),
+    ((0, 0, 1, 1, 0, 0), (0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1)),
+    ((0, 0, 1, 1, 0, 1), (0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0)),
+    ((0, 0, 1, 1, 1, 0), (0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1)),
+    ((0, 0, 1, 1, 1, 1), (0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0)),
+    ((0, 1, 0, 0, 0, 0), (0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1)),
+    ((0, 1, 0, 0, 0, 1), (0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0)),
+    ((0, 1, 0, 0, 1, 0), (0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1)),
+    ((0, 1, 0, 0, 1, 1), (0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0)),
+    ((0, 1, 0, 1, 0, 0), (0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0)),
+    ((0, 1, 0, 1, 0, 1), (0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1)),
+    ((0, 1, 0, 1, 1, 0), (0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0)),
+    ((0, 1, 0, 1, 1, 1), (0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1)),
+    ((0, 1, 1, 0, 0, 0), (0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1)),
+    ((0, 1, 1, 0, 0, 1), (0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0)),
+    ((0, 1, 1, 0, 1, 0), (0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1)),
+    ((0, 1, 1, 0, 1, 1), (0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0)),
+    ((0, 1, 1, 1, 0, 0), (0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0)),
+    ((0, 1, 1, 1, 0, 1), (0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1)),
+    ((0, 1, 1, 1, 1, 0), (0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0)),
+    ((0, 1, 1, 1, 1, 1), (0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1)),
+    ((1, 0, 0, 0, 0, 0), (1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1)),
+    ((1, 0, 0, 0, 0, 1), (1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0)),
+    ((1, 0, 0, 0, 1, 0), (1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1)),
+    ((1, 0, 0, 0, 1, 1), (1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0)),
+    ((1, 0, 0, 1, 0, 0), (1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)),
+    ((1, 0, 0, 1, 0, 1), (1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1)),
+    ((1, 0, 0, 1, 1, 0), (1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0)),
+    ((1, 0, 0, 1, 1, 1), (1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1)),
+    ((1, 0, 1, 0, 0, 0), (1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1)),
+    ((1, 0, 1, 0, 0, 1), (1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0)),
+    ((1, 0, 1, 0, 1, 0), (1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1)),
+    ((1, 0, 1, 0, 1, 1), (1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0)),
+    ((1, 0, 1, 1, 0, 0), (1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0)),
+    ((1, 0, 1, 1, 0, 1), (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1)),
+    ((1, 0, 1, 1, 1, 0), (1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0)),
+    ((1, 0, 1, 1, 1, 1), (1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1)),
+    ((1, 1, 0, 0, 0, 0), (1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0)),
+    ((1, 1, 0, 0, 0, 1), (1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1)),
+    ((1, 1, 0, 0, 1, 0), (1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0)),
+    ((1, 1, 0, 0, 1, 1), (1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1)),
+    ((1, 1, 0, 1, 0, 0), (1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1)),
+    ((1, 1, 0, 1, 0, 1), (1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0)),
+    ((1, 1, 0, 1, 1, 0), (1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1)),
+    ((1, 1, 0, 1, 1, 1), (1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0)),
+    ((1, 1, 1, 0, 0, 0), (1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0)),
+    ((1, 1, 1, 0, 0, 1), (1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1)),
+    ((1, 1, 1, 0, 1, 0), (1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0)),
+    ((1, 1, 1, 0, 1, 1), (1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1)),
+    ((1, 1, 1, 1, 0, 0), (1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1)),
+    ((1, 1, 1, 1, 0, 1), (1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0)),
+    ((1, 1, 1, 1, 1, 0), (1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1)),
+    ((1, 1, 1, 1, 1, 1), (1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0)),
+]
+
 
 class TestHammingCode(unittest.TestCase):
     # Init test class with HammingCode instance for all test methods
@@ -44,52 +111,94 @@ class TestHammingCode(unittest.TestCase):
 
     def test_decode_valid(self):
         """Essential: Test method decode() with VALID input"""
-        codes_to_decode = [
-            (0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0),
-            (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-            (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1),  # From task 4
-            (1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1),
+        test_cases = [
+            (
+                # From task 4
+                (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1),
+                ((1, 0, 1, 1, 0, 1), HCResult.VALID),
+            ),
         ]
-        expected_results = [
-            ((0, 1, 1, 0, 1, 1), HCResult.VALID),
-            ((0, 0, 0, 0, 0, 0), HCResult.VALID),
-            ((1, 0, 1, 1, 0, 1), HCResult.VALID),
-            ((1, 1, 1, 1, 1, 0), HCResult.VALID),
-        ]
-        for code, expected in zip(codes_to_decode, expected_results):
+
+        for word, encoded_word in valid_words:
+            test_cases.append((encoded_word, (word, HCResult.VALID)))
+
+        for code, expected in test_cases:
             self.assertEqual(self.instance.decode(code), expected)
 
     def test_decode_corrected(self):
         """Essential: Test method decode() with CORRECTED input"""
-        codes_to_decode = [
-            (0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0),  # From task 4
-            (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),  # From task 4
-            (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0),
-            (1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1),  # From task 4
+
+        test_cases = [
+            (
+                # From task 4
+                (0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0),
+                ((0, 1, 1, 0, 1, 1), HCResult.CORRECTED),
+            ),
+            (
+                # From task 4
+                (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1),
+                ((0, 0, 0, 0, 0, 0), HCResult.CORRECTED),
+            ),
+            (
+                # From task 4
+                (1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1),
+                ((1, 1, 1, 1, 1, 0), HCResult.CORRECTED),
+            ),
         ]
-        expected_results = [
-            ((0, 1, 1, 0, 1, 1), HCResult.CORRECTED),
-            ((0, 0, 0, 0, 0, 0), HCResult.CORRECTED),
-            ((1, 0, 1, 1, 0, 1), HCResult.CORRECTED),
-            ((1, 1, 1, 1, 1, 0), HCResult.CORRECTED),
-        ]
-        for code, expected in zip(codes_to_decode, expected_results):
+
+        # Generate all possible single bit errors for valid words
+        for word, encoded_word in valid_words:
+            for i in range(len(encoded_word)):
+                test_cases.append(
+                    (
+                        tuple(
+                            bit ^ (1 if i == j else 0)
+                            for j, bit in enumerate(encoded_word)
+                        ),
+                        (word, HCResult.CORRECTED),
+                    )
+                )
+
+        for code, expected in test_cases:
             self.assertEqual(self.instance.decode(code), expected)
 
     def test_decode_uncorrectable(self):
         """Essential: Test method decode() with UNCORRECTABLE input"""
-        self.fail("implement me!")
+        test_cases = []
+
+        # Generate all possible double bit errors for valid words
+        for _, encoded_word in valid_words:
+            for i in range(len(encoded_word)):
+                for j in range(len(encoded_word)):
+                    if i != j:
+                        test_cases.append(
+                            (
+                                tuple(
+                                    bit ^ (1 if i == k or j == k else 0)
+                                    for k, bit in enumerate(encoded_word)
+                                ),
+                                (None, HCResult.UNCORRECTABLE),
+                            )
+                        )
+
+        for code, expected in test_cases:
+            self.assertEqual(self.instance.decode(code), expected)
 
     pass
 
     def test_encode(self):
         """Essential: Test method encode()"""
+        # From task 4
         test_cases = [
             ((0, 1, 1, 0, 1, 1), (0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0)),
             ((0, 0, 0, 0, 0, 0), (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
             ((1, 0, 1, 1, 0, 1), (1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1)),
             ((1, 1, 1, 1, 1, 0), (1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1)),
         ]
+
+        # Add all valid words
+        for word, encoded_word in valid_words:
+            test_cases.append((word, encoded_word))
 
         for source_word, expected_encoded_word in test_cases:
             self.assertEqual(self.instance.encode(source_word), expected_encoded_word)
