@@ -42,7 +42,103 @@ The following expressions are encoded in postfix notation. They can be converted
   96 - (4 + 44 * (3 - 1) + 7) * 25 &\Rightarrow   9644431-*+7+25*-\\
   5^{3} / ( 2 + 3)) / 5=((5*5*5) / ( 2 + 3)) / 5 &\Rightarrow   4789*+*1-
 \end{align*}
+
+\section*{Task 3}
+Running the first expression on the stack machine results in the following steps:
+\begin{enumerate}
+  \item Instruction list is:  \texttt{[4, 2, 2, 3, MUL, ADD, MUL, 2, DIV, STP]}
+\item Instruction is: \texttt{4} Stack is: \texttt{[]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{4}\\
+	Stack after instruction:  \texttt{[4]}
+\item Instruction is: \texttt{2} Stack is: \texttt{[4]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{2}\\
+	Stack after instruction:  \texttt{[4, 2]}
+\item Instruction is: \texttt{2} Stack is: \texttt{[4, 2]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{2}\\
+	Stack after instruction:  \texttt{[4, 2, 2]}
+\item Instruction is: \texttt{3} Stack is: \texttt{[4, 2, 2]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{3}\\
+	Stack after instruction:  \texttt{[4, 2, 2, 3]}
+\item Instruction is: \texttt{MUL} Stack is: \texttt{[4, 2, 2, 3]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{MUL}\\
+	Stack after instruction:  \texttt{[4, 2, 6]}
+\item Instruction is: \texttt{ADD} Stack is: \texttt{[4, 2, 6]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{ADD}\\
+	Stack after instruction:  \texttt{[4, 8]}
+\item Instruction is: \texttt{MUL} Stack is: \texttt{[4, 8]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{MUL}\\
+	Stack after instruction:  \texttt{[32]}
+\item Instruction is: \texttt{2} Stack is: \texttt{[32]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{2}\\
+	Stack after instruction:  \texttt{[32, 2]}
+\item Instruction is: \texttt{DIV} Stack is: \texttt{[32, 2]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{DIV}\\
+	Stack after instruction:  \texttt{[16]}
+\item Instruction is: \texttt{STP} Stack is: \texttt{[16]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{STP}
+\item Final stack is:  \texttt{[16]}
+\end{enumerate}
+
+The instruction list results the following steps:
+
+\begin{enumerate}
+\item Instruction list is:  \texttt{[10, DUP, DUP, MUL, XOR, 4, SHR, 4, MOD, 6, EXP, ' ', 'S', 'E', 'R', STP]}
+\item Instruction is: \texttt{10} Stack is: \texttt{[]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{10}\\
+	Stack after instruction:  \texttt{[10]}
+\item Instruction is: \texttt{DUP} Stack is: \texttt{[10]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{DUP}\\
+	Stack after instruction:  \texttt{[10, 10]}
+\item Instruction is: \texttt{DUP} Stack is: \texttt{[10, 10]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{DUP}\\
+	Stack after instruction:  \texttt{[10, 10, 10]}
+\item Instruction is: \texttt{MUL} Stack is: \texttt{[10, 10, 10]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{MUL}\\
+	Stack after instruction:  \texttt{[10, 100]}
+\item Instruction is: \texttt{XOR} Stack is: \texttt{[10, 100]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{XOR}\\
+	Stack after instruction:  \texttt{[110]}
+\item Instruction is: \texttt{4} Stack is: \texttt{[110]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{4}\\
+	Stack after instruction:  \texttt{[110, 4]}
+\item Instruction is: \texttt{SHR} Stack is: \texttt{[110, 4]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{SHR}\\
+	Stack after instruction:  \texttt{[6]}
+\item Instruction is: \texttt{4} Stack is: \texttt{[6]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{4}\\
+	Stack after instruction:  \texttt{[6, 4]}
+\item Instruction is: \texttt{MOD} Stack is: \texttt{[6, 4]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{MOD}\\
+	Stack after instruction:  \texttt{[2]}
+\item Instruction is: \texttt{6} Stack is: \texttt{[2]} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{6}\\
+	Stack after instruction:  \texttt{[2, 6]}
+\item Instruction is: \texttt{EXP} Stack is: \texttt{[2, 6]} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{EXP}\\
+	Stack after instruction:  \texttt{[0]}
+\item Instruction is: \texttt{  Stack} is: [0]\texttt{} Overflow flag is: \texttt{True}\\
+	Pushing \texttt{ }\\
+	Stack after instruction:  \texttt{[0, ' ']}
+\item Instruction is: \texttt{S} Stack is: \texttt{[0, ' ']} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{S}\\
+	Stack after instruction:  \texttt{[0, ' ', 'S']}
+\item Instruction is: \texttt{E} Stack is: \texttt{[0, ' ', 'S']} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{E}\\
+	Stack after instruction:  \texttt{[0, ' ', 'S', 'E']}
+\item Instruction is: \texttt{R} Stack is: \texttt{[0, ' ', 'S', 'E']} Overflow flag is: \texttt{False}\\
+	Pushing \texttt{R}\\
+	Stack after instruction:  \texttt{[0, ' ', 'S', 'E', 'R']}
+\item Instruction is: \texttt{STP} Stack is: \texttt{[0, ' ', 'S', 'E', 'R']} Overflow flag is: \texttt{False}\\
+	Run instruction \texttt{STP}\\
+Final stack is:  \texttt{[0, ' ', 'S', 'E', 'R']}
+\end{enumerate}
+
+
+
+
 \section*{Appendix}
 \subsection*{Python code for the shunting-yard algorithm}
 \lstinputlisting[language=Python]{./code/shunting-yard.py}
+\subsection*{Python code for the stack machine}
+\lstinputlisting[language=Python]{./code/stack_machine.py}
 
