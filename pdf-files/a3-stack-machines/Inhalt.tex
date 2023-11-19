@@ -1,2 +1,20 @@
 % !TEX root = Document.tex
 \section*{Task 1}
+
+\subsection*{Question 1}
+\textbf{One drawback of stack machines is the need of more memory references.
+For a simple \texttt{ADD} operation of two integers, how many times the data cache is referenced?
+Write down the steps for the operation.}
+
+\texttt{
+\begin{tabbing}
+  PUSH 1\\
+  PUSH 2\\
+  ADD:\=\\
+  \> OP1 = POP\\
+  \>OP2 = POP\\
+  \> PUSH OP1 + OP2\\
+\end{tabbing}
+}
+
+This results in 5 stack operations (2 pushes, 2 pops, 1 push) and 4 memory references (for reading an writing the operands).
