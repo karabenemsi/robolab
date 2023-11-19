@@ -33,3 +33,16 @@ The instructions for the stack machine are 6 bits long. The first two bit of an 
 A register machine needs to save the state of the registers when an interrupt occurs. This is done by pushing the registers, program counter and other information to memory. After the interrupt is handled, the registers need to be restored from memory. A stack machine does not need to perform this state saving because most parameters are already on the stack. Only the stack pointer needs to be saved and restored.
 
 
+\section*{Task 2}
+
+The following expressions are encoded in postfix notation. They can be converted to postfix notation by using the shunting-yard algorithm.
+
+\begin{align*}
+  4 * (7 + 8 * 9) - 1 &\Rightarrow   4789*+*1- \\
+  96 - (4 + 44 * (3 - 1) + 7) * 25 &\Rightarrow   9644431-*+7+25*-\\
+  5^{3} / ( 2 + 3)) / 5=((5*5*5) / ( 2 + 3)) / 5 &\Rightarrow   4789*+*1-
+\end{align*}
+\section*{Appendix}
+\subsection*{Python code for the shunting-yard algorithm}
+\lstinputlisting[language=Python]{./code/shunting-yard.py}
+
