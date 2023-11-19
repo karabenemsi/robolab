@@ -18,3 +18,18 @@ Write down the steps for the operation.}
 }
 
 This results in 5 stack operations (2 pushes, 2 pops, 1 push) and 4 memory references (for reading an writing the operands).
+
+\subsection*{Question 2}
+\textbf{For stack machines, we have a very compact object code (instruction set and rules) which fits in 6 bit or less.
+In comparison, register machines need more bits for the same instruction on the arithmetic logic unit (ALU).
+Explain briefly why this is the case and give an average length needed for instructions for register machines.}
+
+Stack machines need less bits for the instruction set because they only need to specify the operation and not the operands. The operands are implicitly specified by the stack. For register machines, the operands need to be specified explicitly. This results in a larger instruction set and thus more bits needed for the instructions.
+
+The instructions for the stack machine are 6 bits long. The first two bit of an instruction specify the type of operation and the remaining 4 bits specify the parameters or operation. Register machines need to specify the operation and the operands. With the same set of operations we would need the same 4 bits for the operation but also 3 bits to specify the operands register and the target register. This results in at least 7 bits for the instruction set. Register machines also need more operands and average to 16 bits per instruction.
+
+\subsection*{Question 3}
+\textbf{Explain briefly how register and stack machines handle interrupts and why stack machines may have an advantage here.}
+A register machine needs to save the state of the registers when an interrupt occurs. This is done by pushing the registers, program counter and other information to memory. After the interrupt is handled, the registers need to be restored from memory. A stack machine does not need to perform this state saving because most parameters are already on the stack. Only the stack pointer needs to be saved and restored.
+
+
