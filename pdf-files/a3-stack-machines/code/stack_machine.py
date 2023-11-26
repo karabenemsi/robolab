@@ -107,6 +107,7 @@ class StackMachine:
             return tuple(self.stack.pop() for _ in range(n))
 
     def run_instruction(self, instr: Instruction):
+        MAX_INT = 255
         if instr == Instruction.STP:
             return 1
         elif instr == Instruction.DUP:
@@ -120,22 +121,23 @@ class StackMachine:
         elif instr == Instruction.ADD:
             ops = self.get_operands_from_stack()
             result = ops[1] + ops[0]
-            if result > 15:
-                result = result % 16
+            if result > MAX_INT:
+                result = result % (MAX_INT + 1)
                 self.overflow_flag = True
             self.stack.append(result)
         elif instr == Instruction.SUB:
             ops = self.get_operands_from_stack()
             result = ops[1] - ops[0]
             if result < 0:
-                result = 16 + result
+                result = (MAX_INT + 1) + result
                 self.overflow_flag = True
             self.stack.append(result)
         elif instr == Instruction.MUL:
             ops = self.get_operands_from_stack()
             result = ops[1] * ops[0]
-            if result < 0:
-                result = 16 + result
+
+            if result > MAX_INT:
+                result = result % (MAX_INT + 1)
                 self.overflow_flag = True
             self.stack.append(result)
         elif instr == Instruction.DIV:
@@ -145,8 +147,9 @@ class StackMachine:
         elif instr == Instruction.EXP:
             ops = self.get_operands_from_stack()
             result = ops[1] ** ops[0]
-            if result > 15:
-                result = result % 16
+
+            if result > MAX_INT:
+                result = result % (MAX_INT + 1)
                 self.overflow_flag = True
             self.stack.append(result)
         elif instr == Instruction.MOD:
@@ -204,6 +207,93 @@ print("1. RPN expression")
 sm.simulate_instructions(rpn_expr)
 print("\n\n2. instruction list")
 sm.simulate_instructions(instr_list)
+
+# Prints
+# 1. RPN expression
+# Instruction list is:  [4, 2, 2, 3, <Instruction.MUL: 22>, <Instruction.ADD: 20>, <Instruction.MUL: 22>, 2, <Instruction.DIV: 23>, <Instruction.STP: 16>]
+# Instruction is: 4 Stack is: [] Overflow flag is: False
+# 	Pushing 4
+# 	Stack after instruction:  [4]
+# Instruction is: 2 Stack is: [4] Overflow flag is: False
+# 	Pushing 2
+# 	Stack after instruction:  [4, 2]
+# Instruction is: 2 Stack is: [4, 2] Overflow flag is: False
+# 	Pushing 2
+# 	Stack after instruction:  [4, 2, 2]
+# Instruction is: 3 Stack is: [4, 2, 2] Overflow flag is: False
+# 	Pushing 3
+# 	Stack after instruction:  [4, 2, 2, 3]
+# Instruction is: MUL Stack is: [4, 2, 2, 3] Overflow flag is: False
+# 	Run instruction MUL
+# 	Stack after instruction:  [4, 2, 6]
+# Instruction is: ADD Stack is: [4, 2, 6] Overflow flag is: False
+# 	Run instruction ADD
+# 	Stack after instruction:  [4, 8]
+# Instruction is: MUL Stack is: [4, 8] Overflow flag is: False
+# 	Run instruction MUL
+# 	Stack after instruction:  [32]
+# Instruction is: 2 Stack is: [32] Overflow flag is: False
+# 	Pushing 2
+# 	Stack after instruction:  [32, 2]
+# Instruction is: DIV Stack is: [32, 2] Overflow flag is: False
+# 	Run instruction DIV
+# 	Stack after instruction:  [16]
+# Instruction is: STP Stack is: [16] Overflow flag is: False
+# 	Run instruction STP
+# Final stack is:  [16]
+
+
+# 2. instruction list
+# Instruction list is:  [10, <Instruction.DUP: 17>, <Instruction.DUP: 17>, <Instruction.MUL: 22>, <Instruction.XOR: 31>, 4, <Instruction.SHR: 27>, 4, <Instruction.MOD: 25>, 6, <Instruction.EXP: 24>, ' ', 'S', 'E', 'R', <Instruction.STP: 16>]
+# Instruction is: 10 Stack is: [] Overflow flag is: False
+# 	Pushing 10
+# 	Stack after instruction:  [10]
+# Instruction is: DUP Stack is: [10] Overflow flag is: False
+# 	Run instruction DUP
+# 	Stack after instruction:  [10, 10]
+# Instruction is: DUP Stack is: [10, 10] Overflow flag is: False
+# 	Run instruction DUP
+# 	Stack after instruction:  [10, 10, 10]
+# Instruction is: MUL Stack is: [10, 10, 10] Overflow flag is: False
+# 	Run instruction MUL
+# 	Stack after instruction:  [10, 100]
+# Instruction is: XOR Stack is: [10, 100] Overflow flag is: False
+# 	Run instruction XOR
+# 	Stack after instruction:  [110]
+# Instruction is: 4 Stack is: [110] Overflow flag is: False
+# 	Pushing 4
+# 	Stack after instruction:  [110, 4]
+# Instruction is: SHR Stack is: [110, 4] Overflow flag is: False
+# 	Run instruction SHR
+# 	Stack after instruction:  [6]
+# Instruction is: 4 Stack is: [6] Overflow flag is: False
+# 	Pushing 4
+# 	Stack after instruction:  [6, 4]
+# Instruction is: MOD Stack is: [6, 4] Overflow flag is: False
+# 	Run instruction MOD
+# 	Stack after instruction:  [2]
+# Instruction is: 6 Stack is: [2] Overflow flag is: False
+# 	Pushing 6
+# 	Stack after instruction:  [2, 6]
+# Instruction is: EXP Stack is: [2, 6] Overflow flag is: False
+# 	Run instruction EXP
+# 	Stack after instruction:  [64]
+# Instruction is:   Stack is: [64] Overflow flag is: False
+# 	Pushing  
+# 	Stack after instruction:  [64, ' ']
+# Instruction is: S Stack is: [64, ' '] Overflow flag is: False
+# 	Pushing S
+# 	Stack after instruction:  [64, ' ', 'S']
+# Instruction is: E Stack is: [64, ' ', 'S'] Overflow flag is: False
+# 	Pushing E
+# 	Stack after instruction:  [64, ' ', 'S', 'E']
+# Instruction is: R Stack is: [64, ' ', 'S', 'E'] Overflow flag is: False
+# 	Pushing R
+# 	Stack after instruction:  [64, ' ', 'S', 'E', 'R']
+# Instruction is: STP Stack is: [64, ' ', 'S', 'E', 'R'] Overflow flag is: False
+# 	Run instruction STP
+# Final stack is:  [64, ' ', 'S', 'E', 'R']
+
 
 
 # Prints:
@@ -277,7 +367,7 @@ sm.simulate_instructions(instr_list)
 # 	Run instruction EXP
 # 	Stack after instruction:  [0]
 # Instruction is:   Stack is: [0] Overflow flag is: True
-# 	Pushing  
+# 	Pushing
 # 	Stack after instruction:  [0, ' ']
 # Instruction is: S Stack is: [0, ' '] Overflow flag is: False
 # 	Pushing S
