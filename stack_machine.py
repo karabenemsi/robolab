@@ -224,11 +224,25 @@ class StackMachine:
             result = ops[1] >> ops[0]
             self._push(result)
         elif instr == Instruction.HEX:
-            print("Do HEX")
+            self.overflow = False
+            ops = self._pop_operands_from_stack()
+            # Check if any operator is longer than 1 character as a string
+            if any([len(str(o)) > 1 for o in ops]):
+                raise ValueError("operand mismatch")
+            result = int("".join([str(o) for o in ops]), 16)
+            self._push(result)
         elif instr == Instruction.FAC:
-            print("Do FAC")
+            self.overflow = False
+            ops = self._pop_operands_from_stack(1)
+            result = factorial(ops[0])
+            if result > MAX_INT:
+                result %= MAX_INT + 1
+                self.overflow = True
+            self._push(result)
         elif instr == Instruction.NOT:
-            print("Do NOT")
+            self.overflow = False
+            ops = self._pop_operands_from_stack(1)
+            self._push(~ops[0] & 0b11111111)
         elif instr == Instruction.XOR:
             self.overflow = False
             ops = self._pop_operands_from_stack()
