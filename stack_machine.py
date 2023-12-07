@@ -3,6 +3,7 @@
 from enum import IntEnum, Enum
 from typing import List, Tuple, Union
 from ctypes import c_ubyte
+from math import factorial
 
 
 # IMPORTANT NOTE: DO NOT IMPORT THE ev3dev.ev3 MODULE IN THIS FILE
@@ -161,9 +162,11 @@ class StackMachine:
             self._push(ops[0])
             self._push(ops[0])
         elif instr == Instruction.DEL:
-            print("Do DEL")
+            self._pop_operands_from_stack(1)
         elif instr == Instruction.SWP:
-            print("Do SWP")
+            ops = self._pop_operands_from_stack(2)
+            self._push(ops[0])
+            self._push(ops[1])
         elif instr == Instruction.ADD:
             ops = self._pop_operands_from_stack()
             result = ops[1] + ops[0]
@@ -198,7 +201,6 @@ class StackMachine:
         elif instr == Instruction.EXP:
             ops = self._pop_operands_from_stack()
             result = ops[1] ** ops[0]
-
             if result > MAX_INT:
                 result %= MAX_INT + 1
                 self.overflow = True
@@ -249,7 +251,10 @@ class StackMachine:
             result = ops[1] ^ ops[0]
             self._push(result)
         elif instr == Instruction.NOP:
-            print("Do NOP")
+            # Do nothing
+            pass
         elif instr == Instruction.SPEAK:
-            print("Do SPEAK")
-        return 0
+            string_length = self._pop_operands_from_stack(1)[0]
+            string = "".join(str(o) for o in self._pop_operands_from_stack(string_length))
+            print(string)
+        return SMState.RUNNING
