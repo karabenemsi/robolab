@@ -121,11 +121,25 @@ class StackMachine:
             if len(value) != 1:
                 raise ValueError("String must be of length 1")
             self.stack.append(value)
+
+    def _pop_operands_from_stack(self, n=2) -> Tuple[int or str, ...]:
+        """
+        Pops n operands from the stack. and returns them as a tuple. If the stack has (k-m, ..., k-1, k) elements, where k is the top most element, the order of operands in the tuple is (k, k-1, ..., k-n)
+
+        Raises:
+            IndexError: If stack is k < n elements
+
+        Returns:
+            tuple: Tuple of n operands
+        """
         if len(self.stack) < n:
-            raise ValueError("Stack underflow")
+            raise IndexError("operand mismatch")
         else:
             return tuple(
-                int("".join([str(i) for i in self.top()]), 2) for _ in range(n)
+                int("".join([str(i) for i in self.stack.pop()]), 2)
+                if isinstance(self.stack[-1], tuple)
+                else self.stack.pop()
+                for _ in range(n)
             )
 
     def run_instruction(self, instr: Instruction):
