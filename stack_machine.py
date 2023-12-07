@@ -211,7 +211,13 @@ class StackMachine:
             result = ops[1] % ops[0]
             self._push(result)
         elif instr == Instruction.SHL:
-            print("Do SHL")
+            self.overflow = False
+            ops = self._pop_operands_from_stack()
+            result = ops[1] << ops[0]
+            if result > MAX_INT:
+                result %= MAX_INT + 1
+                self.overflow = True
+            self._push(result)
         elif instr == Instruction.SHR:
             self.overflow = False
             ops = self._pop_operands_from_stack()
