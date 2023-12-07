@@ -218,5 +218,266 @@ class TestStackMachine(unittest.TestCase):
         self.sm._push("B")
         self.sm._push("C")
         self.assertEqual(self.sm._pop_operands_from_stack(3), ("C", "B", "A"))
+    # Test individual instructions
+    def test_instruction_stp(self):
+        instr = self._inputValueToTuple(Instruction.STP.value)
+        self.sm.stack = [self._intToByteTuple(0)]
+        self.assertEqual(self.sm.do(instr), SMState.STOPPED)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(0)])
+
+    def test_instruction_dup(self):
+        instr = self._inputValueToTuple(Instruction.DUP.value)
+        self.sm.stack = [self._intToByteTuple(1)]
+        self.sm.overflow = False
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(
+            self.sm.stack, [self._intToByteTuple(1), self._intToByteTuple(1)]
+        )
+        self.assertEqual(self.sm.overflow, False)
+
+        # Overflow should not change
+        self.sm.stack = [self._intToByteTuple(1)]
+        self.sm.overflow = True
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(
+            self.sm.stack, [self._intToByteTuple(1), self._intToByteTuple(1)]
+        )
+        self.assertEqual(self.sm.overflow, True)
+
+    def test_instruction_del(self):
+        instr = self._inputValueToTuple(Instruction.DEL.value)
+        self.sm.stack = [self._intToByteTuple(1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_swp(self):
+        instr = self._inputValueToTuple(Instruction.SWP.value)
+        self.sm.stack = [self._intToByteTuple(1), (0, 0, 0, 0, 0, 0, 1, 1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(
+            self.sm.stack, [(0, 0, 0, 0, 0, 0, 1, 1), self._intToByteTuple(1)]
+        )
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_add(self):
+        instr = self._inputValueToTuple(Instruction.ADD.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = (i + j) % 256
+            expected_overflow = True if i + j > 255 else False
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+    def test_instruction_sub(self):
+        instr = self._inputValueToTuple(Instruction.SUB.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = (i - j) + 256 if i - j < 0 else i - j
+            expected_overflow = True if i - j < 0 else False
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+    def test_instruction_mul(self):
+        instr = self._inputValueToTuple(Instruction.MUL.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = (i * j) % 256
+            expected_overflow = True if i * j > 255 else False
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+    def test_instruction_div(self):
+        instr = self._inputValueToTuple(Instruction.DIV.value)
+        self.sm.overflow = True
+        self.sm.stack = [self._intToByteTuple(11), self._intToByteTuple(2)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(5)])
+        # Overflow should be set correctly
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(21), self._intToByteTuple(3)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(7)])
+        self.assertEqual(self.sm.overflow, False)
+
+        # Divide by zero
+        self.sm.stack = [self._intToByteTuple(3), self._intToByteTuple(0)]
+        self.assertEqual(self.sm.do(instr), SMState.ERROR)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+
+        # Divide zero
+        self.sm.stack = [self._intToByteTuple(0), self._intToByteTuple(5)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(0)])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_exp(self):
+        instr = self._inputValueToTuple(Instruction.EXP.value)
+        for i, j in [(i, k) for i in range(1, 256) for k in range(1, 256)]:
+            expected_result = (i**j) % 256
+            expected_overflow = True if i**j > 255 else False
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+        self.sm.stack = [self._intToByteTuple(0), self._intToByteTuple(1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(0)])
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(1), self._intToByteTuple(0)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(1)])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_mod(self):
+        instr = self._inputValueToTuple(Instruction.MOD.value)
+        for i, j in [(i, k) for i in range(1, 256) for k in range(1, 256)]:
+            expected_result = i % j
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(0), self._intToByteTuple(1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(0)])
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(1), self._intToByteTuple(0)]
+        self.assertEqual(self.sm.do(instr), SMState.ERROR)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_shl(self):
+        instr = self._inputValueToTuple(Instruction.SHL.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = (i << j) % 256
+            expected_overflow = True if i << j > 255 else False
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+    def test_instruction_shr(self):
+        instr = self._inputValueToTuple(Instruction.SHR.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = (i >> j) % 256
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_hex(self):
+        instr = self._inputValueToTuple(Instruction.HEX.value)
+        self.sm.stack = [self._intToByteTuple(0), self._intToByteTuple(1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(16)])
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = ["f", "f"]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(255)])
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(8), self._intToByteTuple(8)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(136)])
+        self.assertEqual(self.sm.overflow, False)
+
+        self.sm.stack = [self._intToByteTuple(0), self._intToByteTuple(16)]
+        self.assertEqual(self.sm.do(instr), SMState.ERROR)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_fac(self):
+        instr = self._inputValueToTuple(Instruction.FAC.value)
+        for i in range(0, 256):
+            expected_result = factorial(i)
+            expected_overflow = True if expected_result > 255 else False
+            expected_result %= 256
+            self.sm.stack = [self._intToByteTuple(i)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, expected_overflow)
+
+    def test_instruction_not(self):
+        instr = self._inputValueToTuple(Instruction.NOT.value)
+        self.sm.stack = [(0, 1, 0, 1, 0, 1, 0, 1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [(1, 0, 1, 0, 1, 0, 1, 0)])
+        self.assertEqual(self.sm.overflow, False)
+
+        instr = self._inputValueToTuple(Instruction.NOT.value)
+        self.sm.stack = [(0, 0, 0, 0, 0, 0, 0, 0)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [(1, 1, 1, 1, 1, 1, 1, 1)])
+        self.assertEqual(self.sm.overflow, False)
+
+        instr = self._inputValueToTuple(Instruction.NOT.value)
+        self.sm.stack = [(1, 1, 1, 1, 1, 1, 1, 1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [(0, 0, 0, 0, 0, 0, 0, 0)])
+        self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_xor(self):
+        instr = self._inputValueToTuple(Instruction.XOR.value)
+        for i, j in [(i, k) for i in range(0, 256) for k in range(0, 256)]:
+            expected_result = i ^ j
+            self.sm.stack = [self._intToByteTuple(i), self._intToByteTuple(j)]
+            self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+            self.assertEqual(self.sm.stack, [self._intToByteTuple(expected_result)])
+            self.assertEqual(self.sm.overflow, False)
+
+    def test_instruction_nop(self):
+        instr = (1, 0, 0, 0, 0, 0)
+        self.sm.stack = [self._intToByteTuple(1)]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [self._intToByteTuple(1)])
+        self.assertEqual(self.sm.overflow, False)
+
+    @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
+    def test_instruction_speak(self, mock_stdout):
+        instr = self._inputValueToTuple(Instruction.SPEAK.value)
+        self.sm.stack = ["H", 1]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+        self.assertEqual(mock_stdout.getvalue()[:-1], "H")
+        # Reset mock stdout
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+
+        self.sm.stack = ["O", "L", "L", "E", "H", 5]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+        self.assertEqual(mock_stdout.getvalue()[:-1], "HELLO")
+        # Reset mock stdout
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+
+        self.sm.stack = ["O", "L", "L", "E", "H", 4]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, ["O"])
+        self.assertEqual(self.sm.overflow, False)
+        self.assertEqual(mock_stdout.getvalue()[:-1], "HELL")
+        # Reset mock stdout
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+
+        self.sm.stack = ["n", self._intToByteTuple(18), "i", 3]
+        self.assertEqual(self.sm.do(instr), SMState.RUNNING)
+        self.assertEqual(self.sm.stack, [])
+        self.assertEqual(self.sm.overflow, False)
+        self.assertEqual(mock_stdout.getvalue()[:-1], "i18n")
+
+
 if __name__ == "__main__":
     unittest.main()
