@@ -52,9 +52,9 @@ class StackMachine:
         Initializes the class StackMachine with all values necessary.
         """
         self.overflow = False
-        self.stack = []
+        self.stack: List[int or str] = []
 
-    def parse_byte(self, code_word: Tuple[int, ...]) -> int or Instruction or str:
+    def _parse_byte(self, code_word: Tuple[int, ...]) -> int or Instruction or str:
         # TODO: tuple of bin to int
         byte = int("".join([str(i) for i in code_word]), 2)
         if 0 <= byte <= 15:
@@ -86,27 +86,16 @@ class StackMachine:
         Returns:
             SMState: Current state of the stack machine
         """
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        # Clear stack and overflow flag
-        word = self.parse_byte(code_word)
-        print(
-            "Instruction is:",
-            word,
-            "Stack is:",
-            self.stack,
-            "Overflow flag is:",
-            self.overflow_flag,
-        )
+        word = self._parse_byte(code_word)
         if isinstance(word, Instruction):
             print("\tRun instruction", word)
             if self.run_instruction(word) == 1:
                 print("Final stack is: ", self.stack)
                 return
         else:
-            print("\tPushing", word)
-            self.stack.append(word)
-            self.overflow_flag = False
-        print("\tStack after instruction: ", self.stack)
+            self._push(word)
+            self.overflow = False
+            return SMState.RUNNING
 
     def top(self) -> Union[None, str, Tuple[int, int, int, int, int, int, int, int]]:
         """
@@ -115,21 +104,23 @@ class StackMachine:
         Returns:
             union: Can be tuple, str or None
         """
+        return self.stack[-1] if len(self.stack) > 0 else None
 
-        # REPLACE "pass" WITH YOUR IMPLEMENTATION
-        pass
-
-    def push(self, value: int or Tuple[int, int, int, int, int, int, int, int]) -> None:
+    def _push(
+        self, value: int or Tuple[int, int, int, int, int, int, int, int] or str
+    ) -> None:
         """
         Pushes a value on the stack.
         """
+        # Convert to Tuple if int
         if isinstance(value, int):
-            self.stack.append(tuple(int(bit) for bit in bin(value)[2:]))
+            self.stack.append(tuple(int(bit) for bit in bin(value)[2:].zfill(8)))
         elif isinstance(value, tuple):
             self.stack.append(value)
-        pass
-
-    def get_operands_from_stack(self, n=2) -> int:
+        elif isinstance(value, str):
+            if len(value) != 1:
+                raise ValueError("String must be of length 1")
+            self.stack.append(value)
         if len(self.stack) < n:
             raise ValueError("Stack underflow")
         else:
