@@ -88,10 +88,20 @@ class StackMachine:
         """
         word = self._parse_byte(code_word)
         if isinstance(word, Instruction):
-            print("\tRun instruction", word)
-            if self.run_instruction(word) == 1:
-                print("Final stack is: ", self.stack)
-                return
+            try:
+                return self._run_instruction(word)
+            except IndexError as ie:
+                print(f"IndexError: {ie}")
+                return SMState.ERROR
+            except NotImplementedError:
+                return SMState.ERROR
+            except ZeroDivisionError:
+                return SMState.ERROR
+            except ValueError:
+                return SMState.ERROR
+            except Exception as e:
+                print(f"Unknown error: {e}")
+                return SMState.ERROR
         else:
             self._push(word)
             self.overflow = False
@@ -142,64 +152,71 @@ class StackMachine:
                 for _ in range(n)
             )
 
-    def run_instruction(self, instr: Instruction):
+    def _run_instruction(self, instr: Instruction) -> SMState:
         MAX_INT = 255
         if instr == Instruction.STP:
-            return 1
+            return SMState.STOPPED
         elif instr == Instruction.DUP:
-            ops = self.get_operands_from_stack(1)
-            self.stack.append(ops[0])
-            self.stack.append(ops[0])
+            ops = self._pop_operands_from_stack(1)
+            self._push(ops[0])
+            self._push(ops[0])
         elif instr == Instruction.DEL:
             print("Do DEL")
         elif instr == Instruction.SWP:
             print("Do SWP")
         elif instr == Instruction.ADD:
-            ops = self.get_operands_from_stack()
+            ops = self._pop_operands_from_stack()
             result = ops[1] + ops[0]
             if result > MAX_INT:
-                result = result % (MAX_INT + 1)
-                self.overflow_flag = True
-            self.stack.append(result)
+                result %= MAX_INT + 1
+                self.overflow = True
+            else:
+                self.overflow = False
+            self._push(result)
         elif instr == Instruction.SUB:
-            ops = self.get_operands_from_stack()
+            ops = self._pop_operands_from_stack()
             result = ops[1] - ops[0]
             if result < 0:
                 result = (MAX_INT + 1) + result
-                self.overflow_flag = True
-            self.stack.append(result)
+                self.overflow = True
+            else:
+                self.overflow = False
+            self._push(result)
         elif instr == Instruction.MUL:
-            ops = self.get_operands_from_stack()
+            ops = self._pop_operands_from_stack()
             result = ops[1] * ops[0]
-
             if result > MAX_INT:
-                result = result % (MAX_INT + 1)
-                self.overflow_flag = True
-            self.stack.append(result)
+                result %= MAX_INT + 1
+                self.overflow = True
+            else:
+                self.overflow = False
+            self._push(result)
         elif instr == Instruction.DIV:
-            ops = self.get_operands_from_stack()
-            self.overflow_flag = False
-            self.stack.append(ops[1] // ops[0])
+            ops = self._pop_operands_from_stack()
+            self.overflow = False
+            self._push(ops[1] // ops[0])
         elif instr == Instruction.EXP:
-            ops = self.get_operands_from_stack()
+            ops = self._pop_operands_from_stack()
             result = ops[1] ** ops[0]
 
             if result > MAX_INT:
-                result = result % (MAX_INT + 1)
-                self.overflow_flag = True
-            self.stack.append(result)
+                result %= MAX_INT + 1
+                self.overflow = True
+            else:
+                self.overflow = False
+            self._push(result)
         elif instr == Instruction.MOD:
-            self.overflow_flag = False
-            ops = self.get_operands_from_stack()
+            self.overflow = False
+            ops = self._pop_operands_from_stack()
             result = ops[1] % ops[0]
-            self.stack.append(result)
+            self._push(result)
         elif instr == Instruction.SHL:
             print("Do SHL")
         elif instr == Instruction.SHR:
-            self.overflow_flag = False
-            ops = self.get_operands_from_stack()
+            self.overflow = False
+            ops = self._pop_operands_from_stack()
             result = ops[1] >> ops[0]
-            self.stack.append(result)
+            self._push(result)
         elif instr == Instruction.HEX:
             print("Do HEX")
         elif instr == Instruction.FAC:
@@ -207,10 +224,10 @@ class StackMachine:
         elif instr == Instruction.NOT:
             print("Do NOT")
         elif instr == Instruction.XOR:
-            self.overflow_flag = False
-            ops = self.get_operands_from_stack()
+            self.overflow = False
+            ops = self._pop_operands_from_stack()
             result = ops[1] ^ ops[0]
-            self.stack.append(result)
+            self._push(result)
         elif instr == Instruction.NOP:
             print("Do NOP")
         elif instr == Instruction.SPEAK:
