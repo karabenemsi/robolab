@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import unittest
+import io
+import unittest.mock
+from math import factorial
+
 from stack_machine import StackMachine, Instruction, SMState
 
 
@@ -218,6 +222,35 @@ class TestStackMachine(unittest.TestCase):
         self.sm._push("B")
         self.sm._push("C")
         self.assertEqual(self.sm._pop_operands_from_stack(3), ("C", "B", "A"))
+
+    @unittest.mock.patch("sys.stdout", new_callable=io.StringIO)
+    def test_do(self, mock_stdout):
+        pass
+        inputs = [
+            (0, 0, 1, 0, 1, 0),
+            (0, 1, 0, 0, 0, 1),
+            (0, 1, 0, 0, 0, 1),
+            (0, 1, 0, 1, 1, 0),
+            (0, 1, 1, 1, 1, 1),
+            (0, 0, 0, 1, 0, 0),
+            (0, 1, 1, 0, 1, 1),
+            (0, 0, 0, 1, 0, 0),
+            (0, 1, 1, 0, 0, 1),
+            (0, 0, 0, 1, 1, 0),
+            (0, 1, 1, 0, 0, 0),
+            (1, 0, 0, 0, 1, 0),
+            (1, 1, 0, 1, 1, 0),
+            (1, 0, 1, 0, 0, 0),
+            (1, 1, 0, 1, 0, 1),
+            (0, 0, 0, 1, 0, 1),
+            (1, 0, 0, 0, 0, 1),
+            (0, 1, 0, 0, 0, 0),
+        ]
+        for op in inputs:
+            self.sm.do(op)
+        self.assertEqual(mock_stdout.getvalue()[:-1], "RES 64")
+        self.assertEqual(self.sm.stack, [])
+
     # Test individual instructions
     def test_instruction_stp(self):
         instr = self._inputValueToTuple(Instruction.STP.value)
