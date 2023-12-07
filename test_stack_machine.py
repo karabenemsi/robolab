@@ -87,6 +87,136 @@ class TestStackMachine(unittest.TestCase):
         return int("".join([str(i) for i in value]), 2)
 
     def test_parse_byte(self):
-        pass
+        # Test when byte is a number
+        for i in range(0, 15):
+            self.assertEqual(
+                self.sm._parse_byte(tuple(int(bit) for bit in bin(i)[2:].zfill(6))), i
+            )
+
+        # Test when byte is an instruction
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.STP.value)),
+            Instruction.STP,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.DUP.value)),
+            Instruction.DUP,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.DEL.value)),
+            Instruction.DEL,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.SWP.value)),
+            Instruction.SWP,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.ADD.value)),
+            Instruction.ADD,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.SUB.value)),
+            Instruction.SUB,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.MUL.value)),
+            Instruction.MUL,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.DIV.value)),
+            Instruction.DIV,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.EXP.value)),
+            Instruction.EXP,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.MOD.value)),
+            Instruction.MOD,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.SHL.value)),
+            Instruction.SHL,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.SHR.value)),
+            Instruction.SHR,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.HEX.value)),
+            Instruction.HEX,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.FAC.value)),
+            Instruction.FAC,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.NOT.value)),
+            Instruction.NOT,
+        )
+        self.assertEqual(
+            self.sm._parse_byte(self._inputValueToTuple(Instruction.XOR.value)),
+            Instruction.XOR,
+        )
+
+        # Test when byte is a special case
+        self.assertEqual(self.sm._parse_byte((1, 0, 0, 0, 0, 0)), Instruction.NOP)
+        self.assertEqual(self.sm._parse_byte((1, 0, 0, 0, 0, 1)), Instruction.SPEAK)
+        self.assertEqual(self.sm._parse_byte((1, 0, 0, 0, 1, 0)), " ")
+        self.assertEqual(self.sm._parse_byte((1, 0, 0, 0, 1, 1)), Instruction.NOP)
+        self.assertEqual(self.sm._parse_byte((1, 1, 1, 1, 1, 0)), Instruction.NOP)
+        self.assertEqual(self.sm._parse_byte((1, 1, 1, 1, 1, 1)), Instruction.NOP)
+
+        # Test when byte is a letter
+        for i in range(0, 26):
+            self.assertEqual(
+                self.sm._parse_byte(
+                    tuple(int(bit) for bit in bin(i + 36)[2:].zfill(6))
+                ),
+                chr(ord("A") + i),
+            )
+
+    def test_pop_operands_from_stack(self):
+        init_stack = [
+            self._intToByteTuple(1),
+            (0, 0, 0, 0, 0, 0, 1, 1),
+            (0, 0, 0, 0, 0, 1, 1, 1),
+            (0, 0, 0, 0, 1, 1, 1, 1),
+            (0, 0, 0, 1, 1, 1, 1, 1),
+        ]
+        self.sm.stack = init_stack.copy()
+        self.assertEqual(self.sm._pop_operands_from_stack(1), (31,))
+        self.assertEqual(self.sm.stack, init_stack[:-1])
+
+        self.sm.stack = init_stack.copy()
+        self.assertEqual(self.sm._pop_operands_from_stack(2), (31, 15))
+        self.assertEqual(self.sm.stack, init_stack[:-2])
+
+        self.sm.stack = init_stack.copy()
+        self.assertEqual(self.sm._pop_operands_from_stack(3), (31, 15, 7))
+        self.assertEqual(self.sm.stack, init_stack[:-3])
+
+        self.sm.stack = []
+        self.sm._push(15)
+        self.sm._push(14)
+        self.sm._push(13)
+        self.assertEqual(self.sm._pop_operands_from_stack(3), (13, 14, 15))
+
+        # Test when stack is empty
+        self.sm.stack = []
+        with self.assertRaises(IndexError):
+            self.sm._pop_operands_from_stack(1)
+
+        # Test when stack has less elements than requested
+        self.sm.stack = [self._intToByteTuple(1)]
+        with self.assertRaises(IndexError):
+            self.sm._pop_operands_from_stack(2)
+
+        # Test with characters
+        self.sm.stack = []
+        self.sm._push("A")
+        self.sm._push("B")
+        self.sm._push("C")
+        self.assertEqual(self.sm._pop_operands_from_stack(3), ("C", "B", "A"))
 if __name__ == "__main__":
     unittest.main()
